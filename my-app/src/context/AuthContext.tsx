@@ -22,18 +22,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(()=>{
+  useEffect(() => {
     //check if the user cookie is valid and skips login
-    async function checkStaus() {
-      const data=await CheckAuthStatus();
-      if(data){
-        setUser({email:data.email,name:data.name});
-        setIsLoggedIn(true);
-      } 
-      
+    async function checkStatus() {
+      try {
+        const data = await CheckAuthStatus();
+        if (data) {
+          setUser({ email: data.email, name: data.name });
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setUser(null);
+        setIsLoggedIn(false);
+      }
     }
-    checkStaus();
-  },[]);
+    checkStatus();
+  }, []);
   const login = async (email: string, password: string) => {
     const data=await LoginUser(email,password);
     if(data){
